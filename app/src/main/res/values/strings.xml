@@ -18,6 +18,7 @@
 
     <string name="app_name">Google+ SDK Sample</string>
     <string name="circles_title">Visible circles:</string>
+    <string name="sign_in_button_name">Login</string>
     <string name="sign_out_button_name">Sign out</string>
     <string name="revoke_access_button_name">Revoke</string>
 
