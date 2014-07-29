@@ -49,7 +49,7 @@ public class MainActivity extends FragmentActivity implements
     ConnectionCallbacks, OnConnectionFailedListener,
     View.OnClickListener {
 
-  private static final String TAG = "android-plus-quickstart";
+  private static final String TAG = "android-profile-quickstart";
 
   private static final int STATE_DEFAULT = 0;
   private static final int STATE_SIGN_IN = 1;
@@ -204,9 +204,11 @@ public class MainActivity extends FragmentActivity implements
     // Retrieve some profile information to personalize our app for the user.
     Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
 
-    mStatus.setText(String.format(
-        getResources().getString(R.string.signed_in_as),
-        currentUser.getDisplayName()));
+    if (currentUser != null){
+        mStatus.setText(String.format(
+                getResources().getString(R.string.signed_in_as),
+                currentUser.getDisplayName()));
+    }
 
     // Indicate that the sign in process is complete.
     mSignInProgress = STATE_DEFAULT;
