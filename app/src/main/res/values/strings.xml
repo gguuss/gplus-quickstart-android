@@ -25,7 +25,7 @@
     <string name="status_sign_in_error">Error logging in: %s</string>
     <string name="status_loading">Loading…</string>
     <string name="status_logging_in">Logging in…</string>
-    <string name="status_signed_out">Logged out</string>
+    <string name="status_logged_out">Logged out</string>
     <string name="status_revoke_access">Revoked access</string>
     <string name="status_revoke_access_error">Error revoking access: %s</string>
     <string name="logged_in_as">Logged in as %s</string>

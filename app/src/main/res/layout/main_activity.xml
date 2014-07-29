@@ -26,7 +26,7 @@
       android:orientation="horizontal"
       android:padding="2dip">
       <Button
-          android:id="@+id/sign_in_button"
+          android:id="@+id/log_in_button"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginBottom="30dip"
@@ -34,7 +34,7 @@
           android:enabled="false" />
 
       <Button
-          android:id="@+id/sign_out_button"
+          android:id="@+id/logout_button"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="@string/sign_out_button_name"
@@ -50,10 +50,10 @@
     </LinearLayout>
     
     <TextView
-        android:id="@+id/sign_in_status"
+        android:id="@+id/login_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dip"
-        android:text="@string/status_signed_out" />
+        android:text="@string/status_logged_out" />
 
 </LinearLayout>
