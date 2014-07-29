@@ -16,8 +16,6 @@ package com.gclassy.android.gms.plus.sample.quickstart;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
@@ -36,8 +34,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 /**
  * Android Google+ Quickstart activity.
@@ -65,8 +61,8 @@ public class MainActivity extends FragmentActivity implements
   // provides access to the users sign in state and Google's APIs.
   private GoogleApiClient mGoogleApiClient;
 
-  // We use mSignInProgress to track whether user has clicked sign in.
-  // mSignInProgress can be one of three values:
+  // We use mLoginProgress to track whether user has clicked sign in.
+  // mLoginProgress can be one of three values:
   //
   //       STATE_DEFAULT: The default state of the application before the user
   //                      has clicked 'sign in', or after they have clicked
@@ -80,18 +76,18 @@ public class MainActivity extends FragmentActivity implements
   //   STATE_IN_PROGRESS: This state indicates that we have started an intent to
   //                      resolve an error, and so we should not start further
   //                      intents until the current intent completes.
-  private int mSignInProgress;
+  private int mLoginProgress;
 
   // Used to store the PendingIntent most recently returned by Google Play
   // services until the user clicks 'sign in'.
-  private PendingIntent mSignInIntent;
+  private PendingIntent mLoginIntent;
 
   // Used to store the error code most recently returned by Google Play services
   // until the user clicks 'sign in'.
-  private int mSignInError;
+  private int mLoginError;
 
-  private Button mSignInButton;
-  private Button mSignOutButton;
+  private Button mLoginButton;
+  private Button mLogoutButton;
   private Button mRevokeButton;
   private TextView mStatus;
 
@@ -100,18 +96,18 @@ public class MainActivity extends FragmentActivity implements
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main_activity);
 
-    mSignInButton = (Button) findViewById(R.id.sign_in_button);
-    mSignOutButton = (Button) findViewById(R.id.sign_out_button);
+    mLoginButton = (Button) findViewById(R.id.sign_in_button);
+    mLogoutButton = (Button) findViewById(R.id.sign_out_button);
     mRevokeButton = (Button) findViewById(R.id.revoke_access_button);
     mStatus = (TextView) findViewById(R.id.sign_in_status);
 
-    mSignInButton.setOnClickListener(this);
-    mSignOutButton.setOnClickListener(this);
+    mLoginButton.setOnClickListener(this);
+    mLogoutButton.setOnClickListener(this);
     mRevokeButton.setOnClickListener(this);
 
 
     if (savedInstanceState != null) {
-      mSignInProgress = savedInstanceState
+      mLoginProgress = savedInstanceState
           .getInt(SAVED_PROGRESS, STATE_DEFAULT);
     }
 
@@ -148,7 +144,7 @@ public class MainActivity extends FragmentActivity implements
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putInt(SAVED_PROGRESS, mSignInProgress);
+    outState.putInt(SAVED_PROGRESS, mLoginProgress);
   }
 
   @Override
@@ -158,8 +154,8 @@ public class MainActivity extends FragmentActivity implements
       // between connected and not connected.
       switch (v.getId()) {
           case R.id.sign_in_button:
-            mStatus.setText(R.string.status_signing_in);
-            resolveSignInError();
+            mStatus.setText(R.string.status_logging_in);
+            resolveLoginError();
             break;
           case R.id.sign_out_button:
             // We clear the default account on sign out so that Google Play
@@ -197,8 +193,8 @@ public class MainActivity extends FragmentActivity implements
     Log.i(TAG, "onConnected");
 
     // Update the user interface to reflect that the user is signed in.
-    mSignInButton.setEnabled(false);
-    mSignOutButton.setEnabled(true);
+    mLoginButton.setEnabled(false);
+    mLogoutButton.setEnabled(true);
     mRevokeButton.setEnabled(true);
 
     // Retrieve some profile information to personalize our app for the user.
@@ -206,12 +202,16 @@ public class MainActivity extends FragmentActivity implements
 
     if (currentUser != null){
         mStatus.setText(String.format(
-                getResources().getString(R.string.signed_in_as),
+                getResources().getString(R.string.logged_in_as),
                 currentUser.getDisplayName()));
+    }else {
+        mStatus.setText(String.format(
+                getResources().getString(R.string.logged_in_as),
+                ": UNKNOWN"));
     }
 
     // Indicate that the sign in process is complete.
-    mSignInProgress = STATE_DEFAULT;
+    mLoginProgress = STATE_DEFAULT;
   }
 
   /* onConnectionFailed is called when our Activity could not connect to Google
@@ -225,17 +225,17 @@ public class MainActivity extends FragmentActivity implements
     Log.i(TAG, "onConnectionFailed: ConnectionResult.getErrorCode() = "
         + result.getErrorCode());
 
-    if (mSignInProgress != STATE_IN_PROGRESS) {
+    if (mLoginProgress != STATE_IN_PROGRESS) {
       // We do not have an intent in progress so we should store the latest
       // error resolution intent for use when the sign in button is clicked.
-      mSignInIntent = result.getResolution();
-      mSignInError = result.getErrorCode();
+      mLoginIntent = result.getResolution();
+      mLoginError = result.getErrorCode();
 
-      if (mSignInProgress == STATE_SIGN_IN) {
+      if (mLoginProgress == STATE_SIGN_IN) {
         // STATE_SIGN_IN indicates the user already clicked the sign in button
         // so we should continue processing errors until the user is signed in
         // or they click cancel.
-        resolveSignInError();
+        resolveLoginError();
       }
     }
 
@@ -250,8 +250,8 @@ public class MainActivity extends FragmentActivity implements
    * the user to consent to the permissions being requested by your app, a
    * setting to enable device networking, etc.
    */
-  private void resolveSignInError() {
-    if (mSignInIntent != null) {
+  private void resolveLoginError() {
+    if (mLoginIntent != null) {
       // We have an intent which will allow our user to sign in or
       // resolve an error.  For example if the user needs to
       // select an account to sign in with, or if they need to consent
@@ -262,15 +262,15 @@ public class MainActivity extends FragmentActivity implements
         // OnConnectionFailed callback.  This will allow the user to
         // resolve the error currently preventing our connection to
         // Google Play services.
-        mSignInProgress = STATE_IN_PROGRESS;
-        startIntentSenderForResult(mSignInIntent.getIntentSender(),
+        mLoginProgress = STATE_IN_PROGRESS;
+        startIntentSenderForResult(mLoginIntent.getIntentSender(),
             RC_SIGN_IN, null, 0, 0, 0);
       } catch (SendIntentException e) {
         Log.i(TAG, "Sign in intent could not be sent: "
             + e.getLocalizedMessage());
         // The intent was canceled before it was sent.  Attempt to connect to
         // get an updated ConnectionResult.
-        mSignInProgress = STATE_SIGN_IN;
+        mLoginProgress = STATE_SIGN_IN;
         mGoogleApiClient.connect();
       }
     } else {
@@ -290,11 +290,11 @@ public class MainActivity extends FragmentActivity implements
         if (resultCode == RESULT_OK) {
           // If the error resolution was successful we should continue
           // processing errors.
-          mSignInProgress = STATE_SIGN_IN;
+          mLoginProgress = STATE_SIGN_IN;
         } else {
           // If the error resolution was not successful or the user canceled,
           // we should stop processing errors.
-          mSignInProgress = STATE_DEFAULT;
+          mLoginProgress = STATE_DEFAULT;
         }
 
         if (!mGoogleApiClient.isConnecting()) {
@@ -308,8 +308,8 @@ public class MainActivity extends FragmentActivity implements
 
   private void onSignedOut() {
     // Update the UI to reflect that the user is signed out.
-    mSignInButton.setEnabled(true);
-    mSignOutButton.setEnabled(false);
+    mLoginButton.setEnabled(true);
+    mLogoutButton.setEnabled(false);
     mRevokeButton.setEnabled(false);
 
     mStatus.setText(R.string.status_signed_out);
@@ -327,16 +327,16 @@ public class MainActivity extends FragmentActivity implements
   protected Dialog onCreateDialog(int id) {
     switch(id) {
       case DIALOG_PLAY_SERVICES_ERROR:
-        if (GooglePlayServicesUtil.isUserRecoverableError(mSignInError)) {
+        if (GooglePlayServicesUtil.isUserRecoverableError(mLoginError)) {
           return GooglePlayServicesUtil.getErrorDialog(
-              mSignInError,
+                  mLoginError,
               this,
               RC_SIGN_IN,
               new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
                   Log.e(TAG, "Google Play services resolution cancelled");
-                  mSignInProgress = STATE_DEFAULT;
+                  mLoginProgress = STATE_DEFAULT;
                   mStatus.setText(R.string.status_signed_out);
                 }
               });
@@ -348,8 +348,8 @@ public class MainActivity extends FragmentActivity implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                       Log.e(TAG, "Google Play services error could not be "
-                          + "resolved: " + mSignInError);
-                      mSignInProgress = STATE_DEFAULT;
+                          + "resolved: " + mLoginError);
+                      mLoginProgress = STATE_DEFAULT;
                       mStatus.setText(R.string.status_signed_out);
                     }
                   }).create();
