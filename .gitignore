@@ -3,4 +3,5 @@ app/build
 *.iml
 gradlew
 *.idea
+build
 local.properties
