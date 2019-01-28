@@ -1,3 +1,5 @@
+**Notice** [Google+ API is shutting down on March 7th, 2019](https://developers.google.com/+/api-shutdown).
+
 # Android Account Retrieval Example                                                 
 This demo shows you how to just use the profile scope and customize sign-in to   
 use minimal assets.                                                                 
